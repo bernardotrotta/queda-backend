@@ -1,82 +1,96 @@
 const express = require('express')
 const app = express()
-const port = 3000
-const MongoClient = require('mongodb').MongoClient
-const url = 'mongodb://127.0.0.1:27017/'
+const dotenv = require('dotenv').config()
 const bcrypt = require('bcrypt')
+const mongoose = require('mongoose')
+const User = require('./model/user.model')
+const port = process.env.NODE_PORT
+const url = process.env.MONGODB_URL
 
-app.use(express.json());
+app.use(express.json())
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+async function startServer() {
+    try {
+        await mongoose.connect(url)
+        console.log('Connected to database')
+
+        app.listen(port, () => {
+            console.log(`Example app listening on port ${port}`)
+        })
+    } catch (err) {
+        console.error('Failed to start server:', err)
+        process.exit(1)
+    }
+}
+
+app.post('/register', async (req, res) => {
+    const reqFields = ['email', 'username', 'password', 'confirmPassword']
+
+    const errors = reqFields.reduce((acc, field) => {
+        if (!req.body[field]) acc[field] = `Missing ${field}`
+        return acc
+    }, {})
+
+    if (Object.keys(errors).length != 0) {
+        return res.status(400).json({
+            error: 'Missing parameters',
+            details: errors,
+        })
+    }
+
+    const { email, username, password, confirmPassword } = req.body
+
+    if (password != confirmPassword) {
+        return res.status(400).json('Password mismatch')
+    }
+
+    // bcrypt.hash(password.toString(), 10, (err, hash) => {
+    //     if (err) throw err
+    //     console.log(hash)
+    // })
+
+    try {
+        const hash = await bcrypt.hash(password.toString(), 10)
+        await User.create({ email: email, username: username, password: hash })
+        res.json('Welcome')
+    } catch (err) {
+        console.log(err)
+        res.json({ error: 'User already exists' })
+    }
 })
 
-app.post('/register', (req, res) => {
-  const reqFields = ['email', 'username', 'password', 'confirmPassword']
+app.post('/login', async (req, res) => {
+    const reqFields = ['email', 'password']
 
-  /* What should I answer to the server */
+    const errors = reqFields.reduce((acc, field) => {
+        if (!req.body[field]) acc[field] = `Missing ${field}`
+        return acc
+    }, {})
 
-  reqFields.forEach(field => {
-    if (!req.body[field]) {
-      console.log(`${field} not found`)
-      return
+    if (Object.keys(errors).length != 0) {
+        res.status(400).json({
+            error: 'Missing parameters',
+            details: errors,
+        })
     }
-  });
 
-  if (req.body[reqFields[3]] != req.body[reqFields[4]]) {
-    res.send("Password mismatch")
-    return
-  }
+    const { email, password } = req.body
 
-  bcrypt.hash(req.body.password.toString(), 10, (err, hash) => {
-    if (err) throw err
-    console.log(hash)
-  })
-
-  console.log(req.body)
-  res.send("Welcome")
-
-})
-
-app.post('/login', (req, res) => {
-  if (!req.body.email) {
-    console.log('Email not found')
-  }
-  if (!req.body.password) {
-    console.log('Password not found')
-  }
-  console.log(req.body.email)
-  console.log(req.body.password)
-
-
-  bcrypt.compare("req.body.password.toString()", hash, (err, result) => {
-    if (err) throw err
-    if (!result) {
-      console.log("Password mismatch")
-      return
+    try {
+        const person = await User.findOne({ email: email })
+        const match = await bcrypt.compare(password.toString(), person.password)
+        if (!match) {
+            return res.status(401).json({ error: 'Passowrd mismatch' })
+        }
+    } catch (err) {
+        console.log(err)
     }
-    console.log("Welcome bro")
-  })
 
-  res.send('Welcome')
+    res.json('Welcome')
 })
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+    res.json('Hello World!')
 })
 
-MongoClient.connect(url, (err, db) => {
-  if (err) throw err
-  db.collection('quedo').find().toArray((err, result) => {
-    if (err) throw err
-    console.log(result)
-  })
-  db.close()
-})
-
-function checkPassword(pwd, pwdConfirm) {
-  if (pwd === pwdConfirm) {
-    console.log("Ok")
-  }
-}
-
+startServer()
