@@ -3,20 +3,23 @@ import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import { signUser, loginUser } from './services/auth.services.js'
 import { Server } from 'socket.io'
+import { createServer } from 'node:http'
+import { enqueue, dequeue, showQueue } from './services/queue.services.js'
 
 dotenv.config()
 
 const app = express()
 const port = process.env.NODE_PORT
+const server = createServer(app)
 const url = process.env.MONGODB_URL
-const io = new Server()
+const io = new Server(server)
 
 async function startServer() {
     try {
         await mongoose.connect(url)
         console.log('Connected to database')
 
-        app.listen(port, () => {
+        server.listen(port, () => {
             console.log(`Example app listening on port ${port}`)
         })
     } catch (err) {
@@ -47,10 +50,31 @@ app.post('/signup', async (req, res, next) => {
     }
 })
 
+app.get('/test', async (req, res, next) => {
+    try {
+        // const users = [{ username: 'Beranrdo' }, { username: 'Vittorio' }]
+        // await enqueue(users)
+        const item = await dequeue()
+        res.json({ message: 'success', queue: item })
+    } catch (e) {
+        next(e)
+    }
+})
+
 app.post('/login', async (req, res, next) => {
     try {
         const token = await loginUser(req.body)
         res.json({ token })
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.post('/queue/users/enqueue', async (req, res, next) => {
+    try {
+        const data = req.body
+        await enqueue(data)
+        res.json({ message: 'success' })
     } catch (e) {
         next(e)
     }
