@@ -1,2 +1,7 @@
 node_modules
 .env
+.prettierrc.json
+package.json
+eslint.confid.js
+ideas.md
+eslint.config.js
