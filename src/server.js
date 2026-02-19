@@ -1,24 +1,27 @@
 import express from 'express'
-import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import { signUser, loginUser } from './services/auth.services.js'
 import { Server } from 'socket.io'
 import { createServer } from 'node:http'
-import { enqueue, dequeue, showQueue } from './services/queue.services.js'
+import {
+    enqueue,
+    dequeue,
+    showQueue,
+    createQueue,
+} from './services/queue.services.js'
 
-dotenv.config()
+process.loadEnvFile()
 
 const app = express()
 const port = process.env.NODE_PORT
 const server = createServer(app)
-const url = process.env.MONGODB_URL
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@queda.b6rphk9.mongodb.net/?appName=Queda`
 const io = new Server(server)
 
 async function startServer() {
     try {
-        await mongoose.connect(url)
+        await mongoose.connect(uri)
         console.log('Connected to database')
-
         server.listen(port, () => {
             console.log(`Example app listening on port ${port}`)
         })
@@ -75,6 +78,33 @@ app.post('/queue/users/enqueue', async (req, res, next) => {
         const data = req.body
         await enqueue(data)
         res.json({ message: 'success' })
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.get('/queue/users/', async (req, res, next) => {
+    try {
+        const queue = await showQueue()
+        res.json({ message: 'success', queue: queue })
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.post('/queue/create', async (req, res, next) => {
+    try {
+        const data = req.body['user']
+
+        await createQueue(data)
+        res.json({ message: 'Created' })
+    } catch (e) {
+        next(e)
+    }
+})
+
+app.post('/queue/users/dequeue', async (req, res, next) => {
+    try {
     } catch (e) {
         next(e)
     }

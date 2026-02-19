@@ -7,15 +7,15 @@ import {
     AppError,
     AuthError,
 } from '../errors/index.js'
-import dotenv from 'dotenv'
-dotenv.config()
+
+process.loadEnvFile()
 
 export async function signUser(data) {
-    const reqFields = ['email', 'username', 'password', 'confirmPassword']
+    const REQ_FIELDS = ['email', 'username', 'password', 'confirmPassword']
 
-    const errors = reqFields.reduce((acc, field) => {
-        if (!data[field]) acc[field] = `Missing ${field}`
-        return acc
+    const errors = REQ_FIELDS.reduce((missingFields, field) => {
+        if (!data[field]) missingFields[field] = `Missing ${field}`
+        return missingFields
     }, {})
 
     if (Object.keys(errors).length != 0) {
