@@ -1,5 +1,6 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import cors from 'cors'
 import { signUser, loginUser } from './services/auth.services.js'
 import { Server } from 'socket.io'
 import { createServer } from 'node:http'
@@ -42,6 +43,7 @@ io.on('connection', (socket) => {
     })
 })
 
+app.use(cors())
 app.use(express.json())
 
 app.post('/signup', async (req, res, next) => {
