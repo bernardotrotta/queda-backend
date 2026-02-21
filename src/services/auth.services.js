@@ -1,16 +1,11 @@
 import bcrypt from 'bcrypt'
 import { User } from '../models/user.model.js'
 import jwt from 'jsonwebtoken'
-import {
-    ValidationError,
-    ConflictError,
-    AppError,
-    AuthError,
-} from '../errors/index.js'
+import { ValidationError, ConflictError, AuthError } from '../errors/index.js'
 
 process.loadEnvFile()
 
-export async function signUser(data) {
+async function signUser(data) {
     const REQ_FIELDS = ['email', 'username', 'password', 'confirmPassword']
 
     const errors = REQ_FIELDS.reduce((missingFields, field) => {
@@ -39,7 +34,7 @@ export async function signUser(data) {
     }
 }
 
-export async function loginUser(data, res) {
+async function loginUser(data) {
     const reqFields = ['email', 'password']
 
     const errors = reqFields.reduce((acc, field) => {
@@ -53,24 +48,22 @@ export async function loginUser(data, res) {
 
     const { email, password } = data
 
-    try {
-        const person = await User.findOne({ email: email })
-        if (!person) {
-            throw new AuthError('Invalid credentials')
-        }
-        const match = await bcrypt.compare(password.toString(), person.password)
-        if (!match) {
-            throw new AuthError('Invalid credentials')
-        }
-        const token = jwt.sign(
-            { id: person._id, username: person.username },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: '1h',
-            },
-        )
-        return token
-    } catch (e) {
-        throw e
+    const person = await User.findOne({ email: email })
+    if (!person) {
+        throw new AuthError('Invalid credentials')
     }
+    const match = await bcrypt.compare(password.toString(), person.password)
+    if (!match) {
+        throw new AuthError('Invalid credentials')
+    }
+    const token = jwt.sign(
+        { id: person._id, username: person.username },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: '1h',
+        },
+    )
+    return token
 }
+
+export { signUser, loginUser }
