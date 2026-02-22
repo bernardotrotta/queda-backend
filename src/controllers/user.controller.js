@@ -1,23 +1,45 @@
-import { AuthError } from '../errors/index.js'
-import { fetchUserQueues, deleteQueue } from '../services/queue.services.js'
+import { fetchUserQueues } from '../services/queue.services.js'
+import {
+    fetchUserInfo,
+    deleteUser,
+    fetchAllUsers,
+} from '../services/user.services.js'
+import { SuccessMessage } from '../utils/messages.js'
 
 const getUserQueues = async (req, res, next) => {
     try {
-        if (req.user != req.params.userId) throw new AuthError('Error')
-        const queues = await fetchUserQueues(req.params.userId)
-        res.json({ queues: queues })
-    } catch (e) {
-        next(e)
+        const queues = await fetchUserQueues(req.user)
+        res.json(new SuccessMessage(queues))
+    } catch (error) {
+        next(error)
     }
 }
 
-const deleteUserQueue = async (req, res, next) => {
+const getUserInfo = async (req, res, next) => {
     try {
-        await deleteQueue(req.params.queueId)
-        res.json({ message: 'Success' })
-    } catch (e) {
-        next(e)
+        const user = await fetchUserInfo(req.user)
+        res.json(new SuccessMessage(user))
+    } catch (error) {
+        next(error)
     }
 }
 
-export { getUserQueues, deleteUserQueue }
+const deleteUserAccount = async (req, res, next) => {
+    try {
+        await deleteUser(req.user)
+        res.json(new SuccessMessage())
+    } catch (error) {
+        next(error)
+    }
+}
+
+const getAllUsers = async (req, res, next) => {
+    try {
+        const users = await fetchAllUsers()
+        res.json(new SuccessMessage(users))
+    } catch (error) {
+        next(error)
+    }
+}
+
+export { getUserQueues, getUserInfo, deleteUserAccount, getAllUsers }

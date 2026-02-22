@@ -1,9 +1,10 @@
 import { signUser, loginUser } from '../services/auth.services.js'
+import { SuccessMessage } from '../utils/messages.js'
 
 const signUp = async (req, res, next) => {
     try {
         await signUser(req.body)
-        res.json({ message: 'Account created' })
+        res.json(new SuccessMessage())
     } catch (e) {
         next(e)
     }
@@ -12,7 +13,7 @@ const signUp = async (req, res, next) => {
 const login = async (req, res, next) => {
     try {
         const token = await loginUser(req.body)
-        res.json({ token })
+        res.json(new SuccessMessage(token))
     } catch (e) {
         next(e)
     }

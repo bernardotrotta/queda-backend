@@ -1,49 +1,50 @@
 import {
     fetchAllQueues,
-    createQueue,
-    enqueue,
-    dequeue,
+    insertQueue,
+    enqueueItem,
+    dequeueItem,
     fetchQueueItems,
+    removeQueue,
 } from '../services/queue.services.js'
+import { SuccessMessage } from '../utils/messages.js'
 
 const getAllQueues = async (req, res, next) => {
     try {
         const queues = await fetchAllQueues()
-        res.json({ queues: queues })
+        res.json(new SuccessMessage(queues))
     } catch (e) {
         next(e)
     }
 }
 
-const newQueue = async (req, res, next) => {
+const createQueue = async (req, res, next) => {
     try {
-        const { user, name } = req.body
-        await createQueue(user, name)
-        res.json({ message: 'Created' })
-    } catch (e) {
-        next(e)
+        const { name } = req.body
+        await insertQueue(req.user, name)
+        res.json(new SuccessMessage())
+    } catch (error) {
+        next(error)
     }
 }
 
-const enqueueItem = async (req, res, next) => {
+const enqueue = async (req, res, next) => {
     try {
         const { queueId } = req.params
         const { ticket, payload } = req.body
-        await enqueue(queueId, ticket, payload)
-        res.json({ message: 'success' })
-    } catch (e) {
-        next(e)
+        await enqueueItem(queueId, ticket, payload)
+        res.json(new SuccessMessage())
+    } catch (error) {
+        next(error)
     }
 }
 
-const dequeueItem = async (req, res, next) => {
+const dequeue = async (req, res, next) => {
     try {
-        // Implementare il controllo dei campi mancanti
-        const { queueId } = req.body
-        const item = await dequeue(queueId)
-        res.json({ item: item })
-    } catch (e) {
-        next(e)
+        const { queueId } = req.params
+        const item = await dequeueItem(queueId)
+        res.json(new SuccessMessage(item))
+    } catch (error) {
+        next(error)
     }
 }
 
@@ -51,10 +52,27 @@ const getQueueItems = async (req, res, next) => {
     try {
         const { queueId } = req.params
         const queue = await fetchQueueItems(queueId)
-        res.json({ queue: queue })
-    } catch (e) {
-        next(e)
+        res.json(new SuccessMessage(queue))
+    } catch (error) {
+        next(error)
     }
 }
 
-export { getAllQueues, newQueue, enqueueItem, dequeueItem, getQueueItems }
+const deleteQueue = async (req, res, next) => {
+    try {
+        const { queueId } = req.params
+        await removeQueue(queueId, req.user)
+        res.json(new SuccessMessage())
+    } catch (error) {
+        next(error)
+    }
+}
+
+export {
+    getAllQueues,
+    createQueue,
+    enqueue,
+    dequeue,
+    getQueueItems,
+    deleteQueue,
+}

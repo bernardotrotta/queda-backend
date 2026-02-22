@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt'
 import { User } from '../models/user.model.js'
+import { ValidationError } from '../utils/errors.js'
+import { ConflictError } from '../utils/errors.js'
+import { AuthError } from '../utils/errors.js'
 import jwt from 'jsonwebtoken'
-import { ValidationError, ConflictError, AuthError } from '../errors/index.js'
 
 process.loadEnvFile()
 
