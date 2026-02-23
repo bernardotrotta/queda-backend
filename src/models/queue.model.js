@@ -15,6 +15,16 @@ const ItemSchema = new mongoose.Schema(
             default: 'waiting',
             required: true,
         },
+        startedServingAt: {
+            type: Date,
+        },
+        serevedAt: {
+            type: Date,
+        },
+        servingTimeEstimation: {
+            type: Number,
+            required: true,
+        },
     },
     { timestamps: true },
 )
@@ -27,8 +37,11 @@ const QueueSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
         },
-        /* fieldsDefinition: { type: mongoose.Schema.Types.Mixed }, */
         active: { type: Boolean, default: true },
+        servingTimeEstimation: {
+            type: Number,
+            required: true,
+        },
     },
     { timestamps: true },
 )

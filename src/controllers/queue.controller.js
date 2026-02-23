@@ -5,6 +5,7 @@ import {
     dequeueItem,
     fetchQueueItems,
     removeQueue,
+    estimatedTimeMs,
 } from '../services/queue.services.js'
 import { SuccessMessage } from '../utils/messages.js'
 
@@ -12,15 +13,25 @@ const getAllQueues = async (req, res, next) => {
     try {
         const queues = await fetchAllQueues()
         res.json(new SuccessMessage(queues))
-    } catch (e) {
-        next(e)
+    } catch (error) {
+        next(error)
+    }
+}
+
+const getServingTimeEstimationMs = async (req, res, next) => {
+    try {
+        const time = await estimatedTimeMs(req.params.queueId)
+        res.json(new SuccessMessage(time))
+    } catch (error) {
+        next(error)
     }
 }
 
 const createQueue = async (req, res, next) => {
     try {
-        const { name } = req.body
-        await insertQueue(req.user, name)
+        const { name, servingTimeEstimationMs } = req.body
+        console.log(servingTimeEstimationMs)
+        await insertQueue(req.user, name, servingTimeEstimationMs)
         res.json(new SuccessMessage())
     } catch (error) {
         next(error)
@@ -30,8 +41,8 @@ const createQueue = async (req, res, next) => {
 const enqueue = async (req, res, next) => {
     try {
         const { queueId } = req.params
-        const { ticket, payload } = req.body
-        await enqueueItem(queueId, ticket, payload)
+        const { ticket, payload, servingTimeEstimationMs } = req.body
+        await enqueueItem(queueId, ticket, payload, servingTimeEstimationMs)
         res.json(new SuccessMessage())
     } catch (error) {
         next(error)
@@ -75,4 +86,5 @@ export {
     dequeue,
     getQueueItems,
     deleteQueue,
+    getServingTimeEstimationMs,
 }

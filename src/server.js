@@ -8,6 +8,7 @@ import authRouter from './routes/auth.route.js'
 import queuesRouter from './routes/queue.route.js'
 import userRouter from './routes/user.route.js'
 import { errorHandler } from './middlewares/error.middleware.js'
+import logger from 'morgan'
 
 const app = express()
 const port = process.env.NODE_PORT
@@ -42,6 +43,7 @@ io.on('connection', (socket) => {
 })
 
 app.use(cors())
+app.use(logger('dev'))
 app.use(express.json())
 app.use('/auth', authRouter)
 app.use('/queues', queuesRouter)

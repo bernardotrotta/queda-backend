@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill'
+
 const numbers = [1, -1, 2, 4]
 console.log(numbers)
 console.log(typeof numbers)
@@ -32,3 +34,14 @@ const test = reqFields.reduce((accumulator, field) => {
 }, [])
 
 console.log(test)
+
+const duration = Temporal.PlainDate.from('2026-03-10')
+console.log(duration)
+
+const time = new Date('2026-02-22T19:08:32.932Z')
+console.log(time)
+const time2 = new Date('2026-02-22T19:12:42.522Z')
+console.log(time2)
+
+const difference = time2 - time
+console.log(difference)
