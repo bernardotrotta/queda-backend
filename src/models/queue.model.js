@@ -7,6 +7,10 @@ const ItemSchema = new mongoose.Schema(
             ref: 'Queue',
             required: true,
         },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
         ticket: { type: Number, required: true },
         payload: { type: mongoose.Schema.Types.Mixed, default: {} },
         status: {

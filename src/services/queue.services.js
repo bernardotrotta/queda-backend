@@ -11,7 +11,11 @@ function insertQueue(user, name, servingTimeEstimationMs) {
     })
 }
 
-async function enqueueItem(queueId, payload, servingTimeEstimationMs) {
+function fetchUserItems(userId) {
+    return Item.find({ userId: userId }).exec()
+}
+
+async function enqueueItem(queueId, userId, payload, servingTimeEstimationMs) {
     const session = await mongoose.startSession()
     session.startTransaction()
     try {
@@ -21,15 +25,11 @@ async function enqueueItem(queueId, payload, servingTimeEstimationMs) {
             { returnDocument: 'after', session },
         )
 
-        console.log(queue)
-        console.log(queue?.counter)
-        console.log(queueId)
-        console.log(servingTimeEstimationMs)
-
         await Item.create(
             [
                 {
                     queueId: queueId,
+                    userId: userId,
                     ticket: queue.counter,
                     payload: payload,
                     servingTimeEstimation: servingTimeEstimationMs,
@@ -93,7 +93,7 @@ function fetchUserQueues(userId) {
 }
 
 function fetchQueueItems(queueId) {
-    return Item.find({ queueId }).exec()
+    return Item.find({ queueId: queueId }).exec()
 }
 
 async function fetchLastServedItem(queueId) {
@@ -145,7 +145,6 @@ async function estimatedTimeMs(queueId) {
         lastServedItem.toJSON()
     const lastServingTime = servedAt - startedServingAt
 
-    console.log(lastServedItem)
     return {
         estimatedTime: a * lastServingTime + (1 - a) * servingTimeEstimation,
     }
@@ -161,4 +160,5 @@ export {
     fetchQueueItems,
     fetchLastServedItem,
     estimatedTimeMs,
+    fetchUserItems,
 }

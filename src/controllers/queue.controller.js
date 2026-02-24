@@ -6,6 +6,7 @@ import {
     fetchQueueItems,
     removeQueue,
     estimatedTimeMs,
+    fetchUserItems,
 } from '../services/queue.services.js'
 import { SuccessMessage } from '../utils/messages.js'
 
@@ -38,11 +39,20 @@ const createQueue = async (req, res, next) => {
     }
 }
 
+const getUserItems = async (req, res, next) => {
+    try {
+        const items = await fetchUserItems(req.user)
+        res.json(new SuccessMessage({ items }))
+    } catch (error) {
+        next(error)
+    }
+}
+
 const enqueue = async (req, res, next) => {
     try {
         const { queueId } = req.params
         const { payload, servingTimeEstimationMs } = req.body
-        await enqueueItem(queueId, payload, servingTimeEstimationMs)
+        await enqueueItem(queueId, req.user, payload, servingTimeEstimationMs)
         res.json(new SuccessMessage())
     } catch (error) {
         next(error)
@@ -87,4 +97,5 @@ export {
     getQueueItems,
     deleteQueue,
     getServingTimeEstimationMs,
+    getUserItems,
 }

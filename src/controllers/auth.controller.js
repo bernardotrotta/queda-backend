@@ -13,7 +13,7 @@ const signUp = async (req, res, next) => {
 const login = async (req, res, next) => {
     try {
         const token = await loginUser(req.body)
-        res.json(new SuccessMessage(token))
+        res.json(new SuccessMessage({ token: token }))
     } catch (e) {
         next(e)
     }
