@@ -7,17 +7,45 @@ function insertQueue(user, name, servingTimeEstimationMs) {
         ownerId: user,
         name: name,
         active: true,
-        servingTimeEstimation: servingTimeEstimationMs,
+        defaultServingTimeEstimation: servingTimeEstimationMs,
     })
 }
 
-function enqueueItem(queueId, ticket, payload, servingTimeEstimationMs) {
-    return Item.create({
-        queueId: queueId,
-        ticket: ticket,
-        payload: payload,
-        servingTimeEstimation: servingTimeEstimationMs,
-    })
+async function enqueueItem(queueId, payload, servingTimeEstimationMs) {
+    const session = await mongoose.startSession()
+    session.startTransaction()
+    try {
+        const queue = await Queue.findOneAndUpdate(
+            { _id: queueId },
+            { $inc: { counter: 1 } },
+            { returnDocument: 'after', session },
+        )
+
+        console.log(queue)
+        console.log(queue?.counter)
+        console.log(queueId)
+        console.log(servingTimeEstimationMs)
+
+        await Item.create(
+            [
+                {
+                    queueId: queueId,
+                    ticket: queue.counter,
+                    payload: payload,
+                    servingTimeEstimation: servingTimeEstimationMs,
+                },
+            ],
+            { session },
+        )
+
+        await session.commitTransaction()
+        return
+    } catch (error) {
+        await session.abortTransaction()
+        throw error
+    } finally {
+        session.endSession()
+    }
 }
 
 async function dequeueItem(queueId) {
@@ -57,10 +85,7 @@ async function dequeueItem(queueId) {
 }
 
 function fetchAllQueues() {
-    return Queue.find(
-        {},
-        { name: 1, ownerId: 1, active: 1, servingTimeEstimation: 1 },
-    ).exec()
+    return Queue.find().exec()
 }
 
 function fetchUserQueues(userId) {
@@ -71,10 +96,10 @@ function fetchQueueItems(queueId) {
     return Item.find({ queueId }).exec()
 }
 
-async function fetchServingTime(queueId) {
+async function fetchLastServedItem(queueId) {
     return Item.findOne(
         { queueId, status: 'served' },
-        { startedServingAt: 1, updatedAt: 1 },
+        { startedServingAt: 1, servedAt: 1, servingTimeEstimation: 1 },
         { sort: { updatedAt: -1 } },
     ).exec()
 }
@@ -105,15 +130,25 @@ async function removeQueue(queueId, userId) {
 }
 
 async function estimatedTimeMs(queueId) {
-    const lastServedItem = await fetchServingTime(queueId)
-    if (!lastServedItem) throw new Error('Errore')
-    const lastServingTime =
-        lastServedItem.updatedAt - lastServedItem.startedServingAt
     const a = 1 / 2
+    const lastServedItem = await fetchLastServedItem(queueId)
+    if (!lastServedItem) {
+        const defaultServingTimeEstimation = await Queue.findOne(
+            { _id: queueId },
+            { _id: 0, defaultServingTimeEstimation: 1 },
+        )
+            .lean()
+            .exec()
+        return defaultServingTimeEstimation
+    }
+    const { servingTimeEstimation, servedAt, startedServingAt } =
+        lastServedItem.toJSON()
+    const lastServingTime = servedAt - startedServingAt
 
-    const estimation =
-        a * lastServingTime + (1 - a) * lastServedItem.servingTimeEstimation
-    return estimation
+    console.log(lastServedItem)
+    return {
+        estimatedTime: a * lastServingTime + (1 - a) * servingTimeEstimation,
+    }
 }
 
 export {
@@ -124,6 +159,6 @@ export {
     fetchAllQueues,
     removeQueue,
     fetchQueueItems,
-    fetchServingTime,
+    fetchLastServedItem,
     estimatedTimeMs,
 }

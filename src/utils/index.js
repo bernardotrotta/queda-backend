@@ -38,9 +38,16 @@ console.log(test)
 const duration = Temporal.PlainDate.from('2026-03-10')
 console.log(duration)
 
-const time = new Date('2026-02-22T19:08:32.932Z')
+/*
+
+			"startedServingAt": "2026-02-23T20:23:33.351Z",
+			"servedAt": "2026-02-23T20:23:53.192Z",
+
+*/
+
+const time = new Date('2026-02-23T20:23:33.351Z')
 console.log(time)
-const time2 = new Date('2026-02-22T19:12:42.522Z')
+const time2 = new Date('2026-02-23T20:23:53.192Z')
 console.log(time2)
 
 const difference = time2 - time

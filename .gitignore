@@ -3,3 +3,4 @@ node_modules
 .prettierrc.json
 ideas.md
 eslint.config.js
+src/utils/queries.md

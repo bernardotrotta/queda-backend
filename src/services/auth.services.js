@@ -62,7 +62,7 @@ async function loginUser(data) {
         { id: person._id, username: person.username },
         process.env.JWT_SECRET,
         {
-            expiresIn: '1h',
+            expiresIn: '4h',
         },
     )
     return token

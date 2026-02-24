@@ -41,8 +41,8 @@ const createQueue = async (req, res, next) => {
 const enqueue = async (req, res, next) => {
     try {
         const { queueId } = req.params
-        const { ticket, payload, servingTimeEstimationMs } = req.body
-        await enqueueItem(queueId, ticket, payload, servingTimeEstimationMs)
+        const { payload, servingTimeEstimationMs } = req.body
+        await enqueueItem(queueId, payload, servingTimeEstimationMs)
         res.json(new SuccessMessage())
     } catch (error) {
         next(error)

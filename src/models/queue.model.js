@@ -18,7 +18,7 @@ const ItemSchema = new mongoose.Schema(
         startedServingAt: {
             type: Date,
         },
-        serevedAt: {
+        servedAt: {
             type: Date,
         },
         servingTimeEstimation: {
@@ -38,9 +38,13 @@ const QueueSchema = new mongoose.Schema(
             required: true,
         },
         active: { type: Boolean, default: true },
-        servingTimeEstimation: {
+        defaultServingTimeEstimation: {
             type: Number,
             required: true,
+        },
+        counter: {
+            type: Number,
+            default: 0,
         },
     },
     { timestamps: true },
