@@ -10,12 +10,13 @@ const ItemSchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
+            required: true,
         },
         ticket: { type: Number, required: true },
         payload: { type: mongoose.Schema.Types.Mixed, default: {} },
         status: {
             type: String,
-            enum: ['waiting', 'serving', 'served'],
+            enum: ['waiting', 'serving', 'served', 'quit'],
             default: 'waiting',
             required: true,
         },
@@ -32,6 +33,8 @@ const ItemSchema = new mongoose.Schema(
     },
     { timestamps: true },
 )
+
+ItemSchema.index({ queueId: 1, userId: 1 }, { unique: true })
 
 const QueueSchema = new mongoose.Schema(
     {

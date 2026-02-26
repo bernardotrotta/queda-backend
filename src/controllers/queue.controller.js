@@ -7,22 +7,30 @@ import {
     removeQueue,
     estimatedTimeMs,
     fetchUserItems,
+    itemRelativePosition,
 } from '../services/queue.services.js'
 import { SuccessMessage } from '../utils/messages.js'
 
 const getAllQueues = async (req, res, next) => {
     try {
         const queues = await fetchAllQueues()
-        res.json(new SuccessMessage(queues))
+        res.json(new SuccessMessage({ queues: queues }))
     } catch (error) {
         next(error)
     }
 }
 
 const getServingTimeEstimationMs = async (req, res, next) => {
+    const { queueId, itemId } = req.params
+
     try {
-        const time = await estimatedTimeMs(req.params.queueId)
-        res.json(new SuccessMessage(time))
+        const baseTime = await estimatedTimeMs(queueId)
+        const relativePosition = await itemRelativePosition(itemId)
+        res.json(
+            new SuccessMessage({
+                'estimated time': baseTime * relativePosition,
+            }),
+        )
     } catch (error) {
         next(error)
     }
@@ -41,8 +49,9 @@ const createQueue = async (req, res, next) => {
 
 const getUserItems = async (req, res, next) => {
     try {
-        const items = await fetchUserItems(req.user)
-        res.json(new SuccessMessage({ items }))
+        const userId = req.user
+        const items = await fetchUserItems(userId)
+        res.json(new SuccessMessage({ items: items }))
     } catch (error) {
         next(error)
     }
@@ -63,7 +72,7 @@ const dequeue = async (req, res, next) => {
     try {
         const { queueId } = req.params
         const item = await dequeueItem(queueId)
-        res.json(new SuccessMessage(item))
+        res.json(new SuccessMessage({ dequeued: item }))
     } catch (error) {
         next(error)
     }
@@ -73,7 +82,7 @@ const getQueueItems = async (req, res, next) => {
     try {
         const { queueId } = req.params
         const queue = await fetchQueueItems(queueId)
-        res.json(new SuccessMessage(queue))
+        res.json(new SuccessMessage({ items: queue }))
     } catch (error) {
         next(error)
     }

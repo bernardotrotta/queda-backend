@@ -1,29 +1,20 @@
 import bcrypt from 'bcrypt'
 import { User } from '../models/user.model.js'
-import { ValidationError } from '../utils/errors.js'
-import { ConflictError } from '../utils/errors.js'
-import { AuthError } from '../utils/errors.js'
+import { ConflictError, AuthError } from '../utils/errors.js'
 import jwt from 'jsonwebtoken'
 
 process.loadEnvFile()
 
-async function signUser(data) {
-    const REQ_FIELDS = ['email', 'username', 'password', 'confirmPassword']
+async function changePassword(userId, password) {
+    const hash = await bcrypt.hash(password.toString(), 10)
+    return await User.findOneAndUpdate({ _id: userId }, { password: hash })
+}
 
-    const errors = REQ_FIELDS.reduce((missingFields, field) => {
-        if (!data[field]) missingFields[field] = `Missing ${field}`
-        return missingFields
-    }, {})
+async function changeUsername(userId, username) {
+    return await User.findOneAndUpdate({ _id: userId }, { username: username })
+}
 
-    if (Object.keys(errors).length != 0) {
-        throw new ValidationError('Missing parameters', errors)
-    }
-
-    const { email, username, password, confirmPassword } = data
-
-    if (password != confirmPassword) {
-        throw new ValidationError('Password mismatch')
-    }
+async function signUser(email, username, password) {
     try {
         const hash = await bcrypt.hash(password.toString(), 10) // hasing password
         await User.create({ email: email, username: username, password: hash }) // Add voice to db
@@ -36,20 +27,7 @@ async function signUser(data) {
     }
 }
 
-async function loginUser(data) {
-    const reqFields = ['email', 'password']
-
-    const errors = reqFields.reduce((acc, field) => {
-        if (!data[field]) acc[field] = `Missing ${field}`
-        return acc
-    }, {})
-
-    if (Object.keys(errors).length != 0) {
-        throw new ValidationError('Missing parameters', errors)
-    }
-
-    const { email, password } = data
-
+async function loginUser(email, password) {
     const person = await User.findOne({ email: email })
     if (!person) {
         throw new AuthError('Invalid credentials')
@@ -58,14 +36,13 @@ async function loginUser(data) {
     if (!match) {
         throw new AuthError('Invalid credentials')
     }
-    const token = jwt.sign(
+    return jwt.sign(
         { id: person._id, username: person.username },
         process.env.JWT_SECRET,
         {
             expiresIn: '4h',
         },
     )
-    return token
 }
 
-export { signUser, loginUser }
+export { signUser, loginUser, changePassword, changeUsername }

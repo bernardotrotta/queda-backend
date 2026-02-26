@@ -11,8 +11,19 @@ function insertQueue(user, name, servingTimeEstimationMs) {
     })
 }
 
+function fetchItem(queueId, itemId) {
+    return Item.find({ _id: itemId, queueId: queueId })
+}
+
 function fetchUserItems(userId) {
     return Item.find({ userId: userId }).exec()
+}
+
+function itemRelativePosition(queueId, itemId) {
+    /* Implementare un controllo sugli errori */
+    const lastServedItem = fetchLastServedItem(queueId)
+    const currentItem = fetchItem(queueId, itemId)
+    return currentItem.ticket - lastServedItem.ticket
 }
 
 async function enqueueItem(queueId, userId, payload, servingTimeEstimationMs) {
@@ -99,7 +110,12 @@ function fetchQueueItems(queueId) {
 async function fetchLastServedItem(queueId) {
     return Item.findOne(
         { queueId, status: 'served' },
-        { startedServingAt: 1, servedAt: 1, servingTimeEstimation: 1 },
+        {
+            startedServingAt: 1,
+            servedAt: 1,
+            servingTimeEstimation: 1,
+            ticket: 1,
+        },
         { sort: { updatedAt: -1 } },
     ).exec()
 }
@@ -161,4 +177,5 @@ export {
     fetchLastServedItem,
     estimatedTimeMs,
     fetchUserItems,
+    itemRelativePosition,
 }

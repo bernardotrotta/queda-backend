@@ -3,7 +3,8 @@ import { SuccessMessage } from '../utils/messages.js'
 
 const signUp = async (req, res, next) => {
     try {
-        await signUser(req.body)
+        const { email, username, password } = req.body
+        await signUser(email, username, password)
         res.json(new SuccessMessage())
     } catch (e) {
         next(e)
@@ -12,7 +13,8 @@ const signUp = async (req, res, next) => {
 
 const login = async (req, res, next) => {
     try {
-        const token = await loginUser(req.body)
+        const { email, password } = req.body
+        const token = await loginUser(email, password)
         res.json(new SuccessMessage({ token: token }))
     } catch (e) {
         next(e)

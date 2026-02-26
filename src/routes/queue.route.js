@@ -16,7 +16,7 @@ router.post('/', auth, createQueue)
 router.get('/', getAllQueues)
 router.get('/:queueId/items', getQueueItems)
 router.post('/:queueId/items', auth, enqueue)
-router.get('/:queueId/time', getServingTimeEstimationMs)
+router.get('/:queueId/items/:itemId/time', getServingTimeEstimationMs)
 router.patch('/:queueId/items', auth, dequeue)
 router.delete('/:queueId', auth, deleteQueue)
 
