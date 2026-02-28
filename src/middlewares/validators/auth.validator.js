@@ -1,5 +1,4 @@
-import { body, validationResult } from 'express-validator'
-import { ValidationError } from '../../utils/errors.js'
+import { body } from 'express-validator'
 
 const signUpChain = () => [
     body('email')
@@ -29,12 +28,4 @@ const loginChain = () => [
     body('password').notEmpty().withMessage('Password is required'),
 ]
 
-const dataValidation = (req, res, next) => {
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        throw new ValidationError('Missing parameters', errors)
-    }
-    next()
-}
-
-export { signUpChain, loginChain, dataValidation }
+export { signUpChain, loginChain }

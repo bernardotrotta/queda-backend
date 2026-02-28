@@ -9,7 +9,8 @@ import { SuccessMessage } from '../utils/messages.js'
 
 const getUserQueues = async (req, res, next) => {
     try {
-        const queues = await fetchUserQueues(req.user)
+        const userId = req.user.id
+        const queues = await fetchUserQueues(userId)
         res.json(new SuccessMessage({ queues: queues }))
     } catch (error) {
         next(error)
@@ -18,7 +19,7 @@ const getUserQueues = async (req, res, next) => {
 
 const updateUserInfo = async (req, res, next) => {
     try {
-        const userId = req.user
+        const userId = req.user.id
         const { username, password, type } = req.body
         if (type === 'password') {
             await changePassword(userId, password)
@@ -34,7 +35,7 @@ const updateUserInfo = async (req, res, next) => {
 
 const getUserInfo = async (req, res, next) => {
     try {
-        const user = await fetchUserInfo(req.user)
+        const user = await fetchUserInfo(req.user.id)
         res.json(new SuccessMessage({ user: user }))
     } catch (error) {
         next(error)
@@ -43,7 +44,7 @@ const getUserInfo = async (req, res, next) => {
 
 const deleteUserAccount = async (req, res, next) => {
     try {
-        await deleteUser(req.user)
+        await deleteUser(req.user.id)
         res.json(new SuccessMessage())
     } catch (error) {
         next(error)

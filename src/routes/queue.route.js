@@ -5,7 +5,7 @@ import {
     dequeue,
     getQueueItems,
     deleteQueue,
-    getServingTimeEstimationMs,
+    getQueue,
 } from '../controllers/queue.controller.js'
 import { auth } from '../middlewares/auth.middleware.js'
 
@@ -16,8 +16,8 @@ router.post('/', auth, createQueue)
 router.get('/', getAllQueues)
 router.get('/:queueId/items', getQueueItems)
 router.post('/:queueId/items', auth, enqueue)
-router.get('/:queueId/items/:itemId/time', getServingTimeEstimationMs)
 router.patch('/:queueId/items', auth, dequeue)
+router.get('/:queueId', getQueue)
 router.delete('/:queueId', auth, deleteQueue)
 
 export default router

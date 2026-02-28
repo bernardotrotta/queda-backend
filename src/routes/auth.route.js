@@ -3,8 +3,8 @@ import { signUp, login } from '../controllers/auth.controller.js'
 import {
     signUpChain,
     loginChain,
-    dataValidation,
 } from '../middlewares/validators/auth.validator.js'
+import { dataValidation } from '../middlewares/validation.middleware.js'
 
 const router = express.Router()
 

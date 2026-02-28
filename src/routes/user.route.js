@@ -7,14 +7,25 @@ import {
     getAllUsers,
     updateUserInfo,
 } from '../controllers/user.controller.js'
-import { getUserItems } from '../controllers/queue.controller.js'
+import { getUserItems } from '../controllers/item.controller.js'
+import {
+    confirmPasswordChain,
+    passwordChain,
+    usernameChain,
+} from '../middlewares/validators/user.validator.js'
+import { dataValidation } from '../middlewares/validation.middleware.js'
 
 const router = express.Router()
 
 router.get('/', auth, getAllUsers)
 router.get('/me', auth, getUserInfo)
 router.delete('/me', auth, deleteUserAccount)
-router.patch('/me', auth, updateUserInfo)
+router.patch(
+    '/me',
+    auth,
+    [usernameChain(), passwordChain(), confirmPasswordChain(), dataValidation],
+    updateUserInfo,
+)
 router.get('/me/queues', auth, getUserQueues)
 router.get('/me/queues/items', auth, getUserItems)
 

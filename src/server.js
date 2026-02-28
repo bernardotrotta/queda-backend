@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import authRouter from './routes/auth.route.js'
 import queuesRouter from './routes/queue.route.js'
 import userRouter from './routes/user.route.js'
+import itemRouter from './routes/items.route.js'
 import { errorHandler } from './middlewares/error.middleware.js'
 import logger from 'morgan'
 
@@ -22,6 +23,7 @@ async function startServer() {
     try {
         await mongoose.connect(uri)
         console.log('Connected to database')
+        // await Item.collection.dropIndex('queueId_1_userId_1')
         server.listen(port, () => {
             console.log(`Example app listening on port ${port}`)
         })
@@ -48,6 +50,7 @@ app.use(express.json())
 app.use('/auth', authRouter)
 app.use('/queues', queuesRouter)
 app.use('/users', userRouter)
+app.use('/items', itemRouter)
 app.use(errorHandler)
 app.get('/protected', (req, res, next) => {
     try {

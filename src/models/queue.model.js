@@ -26,15 +26,11 @@ const ItemSchema = new mongoose.Schema(
         servedAt: {
             type: Date,
         },
-        servingTimeEstimation: {
-            type: Number,
-            required: true,
-        },
     },
     { timestamps: true },
 )
 
-ItemSchema.index({ queueId: 1, userId: 1 }, { unique: true })
+ItemSchema.index({ queueId: 1, userId: 1 }, { unique: false })
 
 const QueueSchema = new mongoose.Schema(
     {
@@ -45,7 +41,7 @@ const QueueSchema = new mongoose.Schema(
             required: true,
         },
         active: { type: Boolean, default: true },
-        defaultServingTimeEstimation: {
+        averageServingTime: {
             type: Number,
             required: true,
         },
