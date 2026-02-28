@@ -1,6 +1,6 @@
 import { Item, Queue } from '../models/queue.model.js'
 import mongoose from 'mongoose'
-import { AuthError } from '../utils/errors.js'
+import { AuthError } from '../errors/errors.js'
 
 function insertQueue(user, name, averageServingTime) {
     return Queue.create({
@@ -65,7 +65,7 @@ async function removeQueue(queueId, userId) {
 }
 
 async function computeAverageServingTime(queueId) {
-    const a = 0.2
+    const a = 0.4
     const lastServedItem = await fetchLastServedItem(queueId)
     const { averageServingTime } = await Queue.findOne(
         { _id: queueId },

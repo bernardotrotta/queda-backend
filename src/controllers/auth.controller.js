@@ -1,5 +1,5 @@
 import { signUser, loginUser } from '../services/auth.services.js'
-import { SuccessMessage } from '../utils/messages.js'
+import { SuccessMessage } from '../messages/messages.js'
 
 const signUp = async (req, res, next) => {
     try {

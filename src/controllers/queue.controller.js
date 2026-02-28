@@ -6,7 +6,7 @@ import {
     fetchQueue,
 } from '../services/queue.services.js'
 import { enqueueItem, dequeueItem } from '../services/item.services.js'
-import { SuccessMessage } from '../utils/messages.js'
+import { SuccessMessage } from '../messages/messages.js'
 
 const getAllQueues = async (req, res, next) => {
     try {

@@ -1,11 +1,7 @@
 import { changePassword, changeUsername } from '../services/auth.services.js'
 import { fetchUserQueues } from '../services/queue.services.js'
-import {
-    fetchUserInfo,
-    deleteUser,
-    fetchAllUsers,
-} from '../services/user.services.js'
-import { SuccessMessage } from '../utils/messages.js'
+import { fetchUserInfo, deleteUser, fetchAllUsers } from '../services/user.services.js'
+import { SuccessMessage } from '../messages/messages.js'
 
 const getUserQueues = async (req, res, next) => {
     try {
@@ -60,10 +56,4 @@ const getAllUsers = async (req, res, next) => {
     }
 }
 
-export {
-    getUserQueues,
-    getUserInfo,
-    deleteUserAccount,
-    getAllUsers,
-    updateUserInfo,
-}
+export { getUserQueues, getUserInfo, deleteUserAccount, getAllUsers, updateUserInfo }

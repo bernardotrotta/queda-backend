@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import { User } from '../models/user.model.js'
-import { ConflictError, AuthError } from '../utils/errors.js'
+import { ConflictError, AuthError } from '../errors/errors.js'
 import jwt from 'jsonwebtoken'
 
 process.loadEnvFile()
@@ -36,13 +36,9 @@ async function loginUser(email, password) {
     if (!match) {
         throw new AuthError('Invalid credentials')
     }
-    return jwt.sign(
-        { id: person._id, username: person.username },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: '4h',
-        },
-    )
+    return jwt.sign({ id: person._id, username: person.username }, process.env.JWT_SECRET, {
+        expiresIn: '4h',
+    })
 }
 
 export { signUser, loginUser, changePassword, changeUsername }
