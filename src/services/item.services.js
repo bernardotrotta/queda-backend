@@ -1,9 +1,10 @@
 import { mongoose } from 'mongoose'
 import { Item, Queue } from '../models/queue.model.js'
 import { computeAverageServingTime } from './queue.services.js'
+import { AuthError, NotFoundError } from '../errors/errors.js'
 
 function fetchItem(queueId, itemId) {
-    return Item.find({ _id: itemId, queueId: queueId })
+    return Item.find({ _id: itemId, queueId: queueId }).exec()
 }
 
 function fetchUserItems(userId) {
@@ -58,6 +59,7 @@ async function dequeueItem(queueId) {
         await Queue.updateOne(
             { _id: queueId },
             { $set: { averageServingTime: newAverageServingTime } },
+            { session },
         )
 
         const next = await Item.findOneAndUpdate(
@@ -85,9 +87,27 @@ async function dequeueItem(queueId) {
     }
 }
 
+async function updateItemStatus(userId, itemId, newStatus) {
+    const item = await Item.findById(itemId).exec()
+
+    if (!item) {
+        throw new NotFoundError('Item not found')
+    }
+
+    console.log(item)
+
+    if (item.userId.toString() !== userId) {
+        throw new AuthError('Unauthorized')
+    }
+
+    item.status = newStatus
+
+    await item.save()
+}
+
 async function currentServingStartTime(itemId) {
-    const Item = await Item.findById(itemId).exec()
-    return Item.startedServingAt
+    const item = await Item.findById(itemId).exec()
+    return item.startedServingAt
 }
 
 async function currentElapsedTime(queueId) {
@@ -104,24 +124,24 @@ async function currentElapsedTime(queueId) {
 
 async function waitingTime(itemId) {
     const item = await Item.findById(itemId).lean().exec()
-
-    if (!item) throw new Error('Item not found')
+    if (!item || item.status !== 'waiting') return 0
 
     const [avgServiceTime, elapsed] = await Promise.all([
         computeAverageServingTime(item.queueId),
         currentElapsedTime(item.queueId),
     ])
 
+    const peopleAhead = await Item.countDocuments({
+        queueId: item.queueId,
+        status: 'waiting',
+        ticket: { $lt: item.ticket },
+    }).exec()
+
     const remainingTimeCurrent = Math.max(0, avgServiceTime - elapsed)
 
-    console.log({
-        remainingTimeCurrent: remainingTimeCurrent,
-        ticket: item.ticket,
-        avg: avgServiceTime,
-    })
-
-    return remainingTimeCurrent + (item.ticket - 1) * avgServiceTime
+    return remainingTimeCurrent + peopleAhead * avgServiceTime
 }
+
 export {
     dequeueItem,
     enqueueItem,
@@ -130,4 +150,5 @@ export {
     currentServingStartTime,
     currentElapsedTime,
     waitingTime,
+    updateItemStatus,
 }

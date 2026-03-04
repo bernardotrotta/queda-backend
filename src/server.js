@@ -25,7 +25,7 @@ async function startServer() {
         console.log('Connected to database')
         // await Item.collection.dropIndex('queueId_1_userId_1')
         server.listen(port, () => {
-            console.log(`Example app listening on port ${port}`)
+            console.log(`Server running on port ${port}`)
         })
     } catch (err) {
         console.error('Failed to start server:', err)

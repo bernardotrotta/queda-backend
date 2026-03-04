@@ -26,6 +26,9 @@ const ItemSchema = new mongoose.Schema(
         servedAt: {
             type: Date,
         },
+        quitAt: {
+            type: Date,
+        },
     },
     { timestamps: true },
 )

@@ -1,4 +1,9 @@
-import { fetchUserItems, waitingTime, currentElapsedTime } from '../services/item.services.js'
+import {
+    fetchUserItems,
+    waitingTime,
+    currentElapsedTime,
+    updateItemStatus,
+} from '../services/item.services.js'
 import { SuccessMessage } from '../messages/messages.js'
 
 const getWaitingTime = async (req, res, next) => {
@@ -11,6 +16,19 @@ const getWaitingTime = async (req, res, next) => {
                 'estimated time': estimatedWaitingTime,
             }),
         )
+    } catch (error) {
+        next(error)
+    }
+}
+
+const quitQueue = async (req, res, next) => {
+    try {
+        const { itemId } = req.params
+        console.log(itemId)
+        const userId = req.user.id
+
+        await updateItemStatus(userId, itemId, 'quit')
+        res.json(new SuccessMessage())
     } catch (error) {
         next(error)
     }
@@ -36,4 +54,4 @@ const getUserItems = async (req, res, next) => {
     }
 }
 
-export { getWaitingTime, getUserItems, getElaspedTime }
+export { getWaitingTime, getUserItems, getElaspedTime, quitQueue }

@@ -1,3 +1,4 @@
+import { quitQueue } from '../controllers/item.controller.js'
 import {
     getAllQueues,
     createQueue,
@@ -19,5 +20,6 @@ router.post('/:queueId/items', auth, enqueue)
 router.patch('/:queueId/items', auth, dequeue)
 router.get('/:queueId', getQueue)
 router.delete('/:queueId', auth, deleteQueue)
+router.delete('/:queueId/items/:itemId', auth, quitQueue)
 
 export default router

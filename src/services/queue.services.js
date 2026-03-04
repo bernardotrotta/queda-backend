@@ -1,6 +1,6 @@
 import { Item, Queue } from '../models/queue.model.js'
 import mongoose from 'mongoose'
-import { AuthError } from '../errors/errors.js'
+import { AuthError, NotFoundError } from '../errors/errors.js'
 
 function insertQueue(user, name, averageServingTime) {
     return Queue.create({
@@ -11,12 +11,14 @@ function insertQueue(user, name, averageServingTime) {
     })
 }
 
-function fetchQueue(queueId) {
-    return Queue.findById(queueId)
+async function fetchQueue(queueId) {
+    const queue = await Queue.findById(queueId).exec()
+    if (!queue) throw new NotFoundError('Queue not found')
+    return queue
 }
 
-function fetchAllQueues() {
-    return Queue.find().exec()
+async function fetchAllQueues() {
+    return await Queue.find().exec()
 }
 
 function fetchUserQueues(userId) {

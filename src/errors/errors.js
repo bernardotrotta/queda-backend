@@ -24,4 +24,10 @@ class AuthError extends AppError {
     }
 }
 
-export { AppError, ValidationError, ConflictError, AuthError }
+class NotFoundError extends AppError {
+    constructor(message, details) {
+        super(message, 404, details)
+    }
+}
+
+export { AppError, ValidationError, ConflictError, AuthError, NotFoundError }
