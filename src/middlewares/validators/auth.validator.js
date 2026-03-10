@@ -1,5 +1,11 @@
 import { body } from 'express-validator'
 
+/**
+ * Validation chain for user registration.
+ * Checks for email, username, password, and password confirmation.
+ * 
+ * @returns {Array} Array of express-validator middlewares.
+ */
 const signUpChain = () => [
     body('email')
         .trim()
@@ -17,6 +23,12 @@ const signUpChain = () => [
         .withMessage('Passwords do not match'),
 ]
 
+/**
+ * Validation chain for user login.
+ * Checks for email and password.
+ * 
+ * @returns {Array} Array of express-validator middlewares.
+ */
 const loginChain = () => [
     body('email')
         .trim()

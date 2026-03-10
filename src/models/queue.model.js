@@ -1,5 +1,9 @@
 import mongoose from 'mongoose'
 
+/**
+ * Schema definition for an Item in a Queue.
+ * Represents a user's position and status within a specific queue.
+ */
 const ItemSchema = new mongoose.Schema(
     {
         queueId: {
@@ -35,6 +39,10 @@ const ItemSchema = new mongoose.Schema(
 
 ItemSchema.index({ queueId: 1, userId: 1 }, { unique: false })
 
+/**
+ * Schema definition for a Queue.
+ * Represents a managed queue owned by a user.
+ */
 const QueueSchema = new mongoose.Schema(
     {
         name: { type: String, required: true },
@@ -56,6 +64,14 @@ const QueueSchema = new mongoose.Schema(
     { timestamps: true },
 )
 
+/**
+ * Mongoose model for the Queue entity.
+ */
 const Queue = mongoose.model('Queue', QueueSchema)
+
+/**
+ * Mongoose model for the Item entity.
+ */
 const Item = mongoose.model('Item', ItemSchema)
+
 export { Queue, Item }
